@@ -44,6 +44,15 @@
     #continue-btn:hover {
       background: #d35400;
     }
+    /* Stil für den "noch gesperrt"-Hinweis */
+    #locked-message {
+      background: #ecf0f1;
+      color: #2c3e50;
+      padding: 0.7rem 1.3rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
     #polis-container {
       max-width: 800px;
       margin: 1.5rem auto;
@@ -66,7 +75,8 @@
 
   <div id="continue-bar">
     <p>Wenn du genug Aussagen bewertet hast, kannst du zur Abschlussbefragung wechseln.</p>
-    <a id="continue-btn" href="#">Weiter zur Abschlussbefragung →</a>
+    <!-- Entweder Button ODER Sperr-Hinweis wird hier per JS eingefügt -->
+    <span id="continue-slot"></span>
   </div>
 
   <div id="polis-container">
@@ -86,14 +96,39 @@
 
     var embedContainer = document.getElementById("polis-embed");
     var warning = document.getElementById("xid-warning");
-    var continueBtn = document.getElementById("continue-btn");
+    var continueSlot = document.getElementById("continue-slot");
 
-    // Post-Survey URL - placeholder until Phase 3 survey exists
+    // ── PLATZHALTER-DATUM: 2 Minuten ab jetzt ──
+    // Später ersetzen wir das durch das echte Enddatum, z.B. new Date("2026-07-05T00:00:00")
+    var unlockDate = new Date(Date.now() + 2 * 60 * 1000);
+
+    // Post-Survey URL - Platzhalter bis Phase 3 existiert
     var postSurveyBaseUrl = "https://survey.academiccloud.de/f/NEUE_SID?lang=de";
+
+    function renderContinueSlot() {
+      var now = new Date();
+
+      if (now < unlockDate) {
+        // Noch gesperrt: Hinweistext mit Datum anzeigen
+        var formatted = unlockDate.toLocaleString("de-DE", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+        continueSlot.innerHTML =
+          '<span id="locked-message">Abschlussbefragung verfügbar ab: ' + formatted + '</span>';
+      } else {
+        // Freigeschaltet: Button anzeigen
+        var link = document.createElement("a");
+        link.id = "continue-btn";
+        link.textContent = "Weiter zur Abschlussbefragung →";
+        link.href = postSurveyBaseUrl + "&participantid=" + encodeURIComponent(xid || "");
+        continueSlot.innerHTML = "";
+        continueSlot.appendChild(link);
+      }
+    }
 
     if (!xid) {
       warning.style.display = "block";
-      continueBtn.style.display = "none";
     } else {
       var polisDiv = document.createElement("div");
       polisDiv.className = "polis";
@@ -105,9 +140,13 @@
       script.src = "https://pol.is/embed.js";
       script.async = true;
       document.body.appendChild(script);
-
-      continueBtn.href = postSurveyBaseUrl + "&participantid=" + encodeURIComponent(xid);
     }
+
+    // Zustand sofort prüfen und anzeigen
+    renderContinueSlot();
+
+    // Alle 10 Sekunden neu prüfen, falls die Seite offen bleibt und die Zeit erreicht wird
+    setInterval(renderContinueSlot, 10000);
   </script>
 
 </body>
