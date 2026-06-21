@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pol.is Konversation – Klimaschutz</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #f9f9f9;
+      color: #222;
+    }
+    #continue-bar {
+      position: sticky;
+      top: 0;
+      background: #2c3e50;
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      z-index: 1000;
+    }
+    #continue-bar p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    #continue-btn {
+      background: #e67e22;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.3rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    #continue-btn:hover {
+      background: #d35400;
+    }
+    #polis-container {
+      max-width: 800px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+    }
+    h1 {
+      font-size: 1.4rem;
+    }
+    #xid-warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="continue-bar">
+    <p>Wenn du genug Aussagen bewertet hast, kannst du zur Abschlussbefragung wechseln.</p>
+    <a id="continue-btn" href="#">Weiter zur Abschlussbefragung →</a>
+  </div>
+
+  <div id="polis-container">
+    <h1>Diskussion: Klimaschutzmaßnahmen & CO2-Steuer</h1>
+
+    <div id="xid-warning">
+      ⚠️ Keine Teilnehmer-ID in der URL gefunden.
+      Bitte nutze den Link aus der Umfrage.
+    </div>
+
+    <div id="polis-embed"></div>
+  </div>
+
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var xid = params.get("xid");
+
+    var embedContainer = document.getElementById("polis-embed");
+    var warning = document.getElementById("xid-warning");
+    var continueBtn = document.getElementById("continue-btn");
+
+    // Post-Survey URL - placeholder until Phase 3 survey exists
+    var postSurveyBaseUrl = "https://survey.academiccloud.de/f/NEUE_SID?lang=de";
+
+    if (!xid) {
+      warning.style.display = "block";
+      continueBtn.style.display = "none";
+    } else {
+      var polisDiv = document.createElement("div");
+      polisDiv.className = "polis";
+      polisDiv.setAttribute("data-conversation_id", "8zsy4bmnzc");
+      polisDiv.setAttribute("data-xid", xid);
+      embedContainer.appendChild(polisDiv);
+
+      var script = document.createElement("script");
+      script.src = "https://pol.is/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      continueBtn.href = postSurveyBaseUrl + "&participantid=" + encodeURIComponent(xid);
+    }
+  </script>
+
+</body>
+</html>
